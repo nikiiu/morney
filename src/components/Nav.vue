@@ -15,5 +15,5 @@
 </script>
 
 <style lang="scss" scoped>
-    .nav{border: 1px solid red;}
+    
 </style>
