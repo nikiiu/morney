@@ -57,6 +57,7 @@ export default class NumberPad extends Vue {
   }
   ok() {
     this.$emit("update:value", this.output);
+    this.$emit("submit", this.output);
   }
 }
 </script>
@@ -66,7 +67,7 @@ export default class NumberPad extends Vue {
 .numberPad {
   .output {
     @extend %clearFix;
-    @extend %innerShadow;
+
     font-size: 36px;
     font-family: Consolas, monospace;
     padding: 9px 16px;
