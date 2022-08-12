@@ -49,6 +49,7 @@ export default class Tags extends Vue {
 <style lang="scss" scoped>
 @use "sass:math";
 .tags {
+  background: white;
   flex-grow: 1;
   font-size: 14px;
   padding: 16px;
