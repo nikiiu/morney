@@ -6,7 +6,7 @@ import store from "./store";
 import Nav from "@/components/Nav.vue";
 import Layout from "@/components/Layout.vue";
 import Icon from "@/components/Icon.vue";
-import { tagListModel } from '@/models/tagListModel';
+import { tagListModel } from "@/models/tagListModel";
 
 Vue.config.productionTip = false;
 
@@ -15,6 +15,14 @@ Vue.component("Layout", Layout);
 Vue.component("Icon", Icon);
 
 window.tagList = tagListModel.fetch();
+window.createTag = (name: string) => {
+  const message = tagListModel.create(name);
+  if (message === "duplicated") {
+    window.alert("标签名重复了QAQ");
+  } else if (message === "success") {
+    window.alert("添加成功啦^^");
+  }
+};
 
 new Vue({
   router,
