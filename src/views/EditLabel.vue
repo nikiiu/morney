@@ -7,7 +7,7 @@
     </div>
     <div class="form-wrapper">
       <FormItem
-        :value="tag.name"
+        :value="tag && tag.name"
         @update:value="update"
         field-name="标签名"
         placeholder="在这里输入标签名"
