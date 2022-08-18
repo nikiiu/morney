@@ -10,26 +10,39 @@
       :data-source="intervalList"
       :value.sync="interval"
     />
-    <div>
-      type:{{ type }}
-      <br />
-      interval:{{ interval }}
-    </div>
+    <ol>
+      <li v-for="(group, index) in result" :key="index">
+        <h3 class="title">{{ group.title }}</h3>
+        <ol>
+          <li v-for="item in group.items" :key="item" class="record">
+            <span>{{ tagString(item.tags) }}</span>
+            <span class="notes">{{ item.notes }}</span>
+            <span>￥{{ item.amount }} </span>
+          </li>
+        </ol>
+      </li>
+    </ol>
   </Layout>
 </template>
-
 <style scoped lang="scss">
-::v-deep .type-tabs-item {
-  background: white;
-  &.selected {
-    background: #c4c4c4;
-    &::after {
-      display: none;
-    }
-  }
+%item {
+  padding: 8px 16px;
+  line-height: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
-::v-deep .interval-tabs-item {
-  height: 48px;
+.title {
+  @extend %item;
+}
+.record {
+  @extend %item;
+  background: white;
+}
+.notes {
+  margin-right: auto;
+  margin-left: 16px;
+  color: #999;
 }
 </style>
 <script lang="ts">
@@ -42,10 +55,49 @@ import intervalList from "../constants/intervalList";
   components: { Tabs },
 })
 export default class Statistics extends Vue {
+  tagString(tags: string[]) {
+    return tags.length === 0 ? "无" : tags.join(",");
+  }
+  get recordList() {
+    return this.$store.state.recordList;
+  }
+
+  get result() {
+    const { recordList } = this;
+    type HashTableValue = { title: string; items: RecordItem[] };
+    const hashTable: {
+      [key: string]: HashTableValue;
+    } = {};
+
+    for (let i = 0; i < recordList.length; i++) {
+      const [date, time] = recordList[i].createAt!.split("T");
+      hashTable[date] = hashTable[date] || { title: date, items: [] };
+      hashTable[date].items.push(recordList[i]);
+    }
+    return hashTable;
+  }
+  beforeCreate() {
+    this.$store.commit("fetchRecords");
+  }
   type = "-";
   interval = "day";
-
   intervalList = intervalList;
   recordTypeList = recordTypeList;
 }
 </script>
+<style scoped lang="scss">
+::v-deep {
+  .type-tabs-item {
+    background: white;
+    &.selected {
+      background: #c4c4c4;
+      &::after {
+        display: none;
+      }
+    }
+  }
+  .interval-tabs-item {
+    height: 48px;
+  }
+}
+</style>
