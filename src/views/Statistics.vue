@@ -5,13 +5,13 @@
       :data-source="recordTypeList"
       :value.sync="type"
     />
-    <ol>
+    <ol v-if="groupedList.length > 0">
       <li v-for="(group, index) in groupedList" :key="index">
         <h3 class="title">
           {{ beautify(group.title) }} <span>￥{{ group.total }}</span>
         </h3>
         <ol>
-          <li v-for="item in group.items" :key="item.id" class="record">
+          <li v-for="item in group.items" :key="item.createAt" class="record">
             <span>{{ tagString(item.tags) }}</span>
             <span class="notes">{{ item.notes }}</span>
             <span>￥{{ item.amount }} </span>
@@ -19,6 +19,7 @@
         </ol>
       </li>
     </ol>
+    <div v-else class="noResult">目前没有相关记录</div>
   </Layout>
 </template>
 <script lang="ts">
@@ -50,7 +51,7 @@ export default class Statistics extends Vue {
     }
   }
   tagString(tags: Tag[]) {
-    return tags.length === 0 ? "无" : tags.join(",");
+    return tags.length === 0 ? "无" : tags.join("，");
   }
   get recordList() {
     return this.$store.state.recordList;
@@ -58,9 +59,7 @@ export default class Statistics extends Vue {
 
   get groupedList() {
     const { recordList } = this;
-    if (recordList.length === 0) {
-      return [];
-    }
+
     const newList = clone(recordList)
       .filter((r: { type: string }) => r.type === this.type)
       .sort(
@@ -73,6 +72,9 @@ export default class Statistics extends Vue {
           }
         ) => dayjs(b.createAt).valueOf() - dayjs(a.createAt).valueOf()
       );
+    if (newList.length === 0) {
+      return [];
+    }
     type Result = { title: string; total?: number; items: RecordItem[] }[];
 
     const result: Result = [
@@ -107,6 +109,10 @@ export default class Statistics extends Vue {
 }
 </script>
 <style scoped lang="scss">
+.noResult {
+  padding: 16px;
+  text-align: center;
+}
 ::v-deep {
   .type-tabs-item {
     background: #c4c4c4;
