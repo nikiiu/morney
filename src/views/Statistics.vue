@@ -5,6 +5,7 @@
       :data-source="recordTypeList"
       :value.sync="type"
     />
+    <Chart :options="x" />
     <ol v-if="groupedList.length > 0">
       <li v-for="(group, index) in groupedList" :key="index">
         <h3 class="title">
@@ -29,10 +30,11 @@ import { Component } from "vue-property-decorator";
 import Tabs from "../components/Tabs.vue";
 import dayjs from "dayjs";
 import clone from "@/lib/clone";
+import Chart from "@/components/Chart.vue";
 
 const oneDay = 86400 * 1000;
 @Component({
-  components: { Tabs },
+  components: { Tabs, Chart },
 })
 export default class Statistics extends Vue {
   beautify(string: string) {
@@ -52,6 +54,25 @@ export default class Statistics extends Vue {
   }
   tagString(tags: Tag[]) {
     return tags.length === 0 ? "无" : tags.join("，");
+  }
+
+  get x() {
+    return {
+      xAxis: {
+        type: "category",
+        data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+      },
+      yAxis: {
+        type: "value",
+      },
+      series: [
+        {
+          data: [150, 230, 224, 218, 135, 147, 260],
+          type: "line",
+        },
+      ],
+      tooltip: { show: true },
+    };
   }
   get recordList() {
     return this.$store.state.recordList;
