@@ -5,7 +5,9 @@
       :data-source="recordTypeList"
       :value.sync="type"
     />
-    <Chart :options="x" />
+    <div class="chart-wrapper" ref="chartWrapper">
+      <Chart class="chart" :options="x" />
+    </div>
     <ol v-if="groupedList.length > 0">
       <li v-for="(group, index) in groupedList" :key="index">
         <h3 class="title">
@@ -37,6 +39,9 @@ const oneDay = 86400 * 1000;
   components: { Tabs, Chart },
 })
 export default class Statistics extends Vue {
+  mounted() {
+    (this.$refs.chartWrapper as HTMLDivElement).scrollLeft = 9999;
+  }
   beautify(string: string) {
     const day = dayjs(string);
     const now = dayjs();
@@ -58,20 +63,34 @@ export default class Statistics extends Vue {
 
   get x() {
     return {
+      grid: {
+        left: 0,
+        right: 0,
+      },
       xAxis: {
         type: "category",
         data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+        axisTick: { alignWithLabel: true },
+        axisLine: { lineStyle: { color: "#666" } },
       },
       yAxis: {
         type: "value",
+        show: false,
       },
       series: [
         {
+          symbolSize: 10,
+          itemStyle: { borderWidth: 1, color: "#666", borderColor: "#666" },
           data: [150, 230, 224, 218, 135, 147, 260],
           type: "line",
         },
       ],
-      tooltip: { show: true },
+      tooltip: {
+        show: true,
+        triggerOn: "click",
+        formatter: "{c}",
+        position: "top",
+      },
     };
   }
   get recordList() {
@@ -166,5 +185,14 @@ export default class Statistics extends Vue {
   margin-right: auto;
   margin-left: 16px;
   color: #999;
+}
+.chart {
+  width: 430%;
+  &-wrapper {
+    overflow: auto;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
 }
 </style>
