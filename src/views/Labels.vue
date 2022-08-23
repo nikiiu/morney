@@ -36,7 +36,7 @@ export default class Labels extends mixins(TagHelper) {
 </script>
 <style lang="scss" scoped>
 .tags {
-  background: white;
+  background: rgb(252, 249, 249);
   font-size: 16px;
   padding-left: 16px;
   > .tag {

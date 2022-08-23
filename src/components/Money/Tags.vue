@@ -41,11 +41,18 @@ export default class Tags extends mixins(TagHelper) {
   }
 }
 </script>
-
+<style>
+@media (max-width: 720px) {
+  .msgBox {
+    width: 320px !important;
+  }
+}
+</style>
 <style lang="scss" scoped>
 @use "sass:math";
+
 .tags {
-  background: white;
+  background: rgb(252, 249, 249);
   flex-grow: 1;
   font-size: 14px;
   padding: 16px;
@@ -55,7 +62,7 @@ export default class Tags extends mixins(TagHelper) {
     display: flex;
     flex-wrap: wrap;
     > li {
-      $bg: #d9d9d9;
+      $bg: #fceeee;
       background: $bg;
       $h: 24px;
       height: $h;

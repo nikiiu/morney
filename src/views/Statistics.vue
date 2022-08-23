@@ -186,9 +186,9 @@ export default class Statistics extends Vue {
 }
 ::v-deep {
   .type-tabs-item {
-    background: #c4c4c4;
+    background: #f6cbcb;
     &.selected {
-      background: white;
+      background: rgb(252, 249, 249);
       &::after {
         display: none;
       }
@@ -210,7 +210,7 @@ export default class Statistics extends Vue {
 }
 .record {
   @extend %item;
-  background: white;
+  background: rgb(252, 249, 249);
 }
 .notes {
   margin-right: auto;
