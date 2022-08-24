@@ -16,7 +16,8 @@
     <ol v-if="groupedList.length > 0">
       <li v-for="(group, index) in groupedList" :key="index">
         <h3 class="title">
-          {{ beautify(group.title) }} <span>￥{{ group.total }}</span>
+          {{ beautify(group.title) }}
+          <span>￥{{ group.total }}</span>
         </h3>
         <ol>
           <li v-for="item in group.items" :key="item.createAt" class="record">
@@ -191,7 +192,7 @@ export default class Statistics extends Vue {
     if (newList.length === 0) {
       return [];
     }
-    type Result = { title: string; total?: number; items: RecordItem[] }[];
+    type Result = { title: string; total?: string; items: RecordItem[] }[];
 
     const result: Result = [
       {
@@ -212,7 +213,9 @@ export default class Statistics extends Vue {
       }
     }
     result.map((group) => {
-      group.total = group.items.reduce((sum, item) => sum + item.amount, 0);
+      group.total = group.items
+        .reduce((sum, item) => sum + item.amount, 0)
+        .toFixed(2);
     });
 
     return result;
@@ -236,7 +239,7 @@ export default class Statistics extends Vue {
     if (newList.length === 0) {
       return [];
     }
-    type Result = { title: string; total?: number; items: RecordItem[] }[];
+    type Result = { title: string; total?: string; items: RecordItem[] }[];
 
     const result: Result = [
       {
@@ -257,7 +260,9 @@ export default class Statistics extends Vue {
       }
     }
     result.map((group) => {
-      group.total = group.items.reduce((sum, item) => sum + item.amount, 0);
+      group.total = group.items
+        .reduce((sum, item) => sum + item.amount, 0)
+        .toFixed(2);
     });
 
     return result;
