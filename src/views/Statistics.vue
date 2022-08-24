@@ -5,6 +5,11 @@
       :data-source="recordTypeList"
       :value.sync="type"
     />
+    <Tabs
+      class-prefix="interval"
+      :data-source="intervalList"
+      :value.sync="interval"
+    />
     <div class="chart-wrapper" ref="chartWrapper">
       <Chart class="chart" :options="chartOptions" />
     </div>
@@ -35,6 +40,7 @@ import clone from "@/lib/clone";
 import Chart from "@/components/Chart.vue";
 import _ from "lodash";
 import day from "dayjs";
+import intervalList from "@/constants/intervalList";
 
 const oneDay = 86400 * 1000;
 @Component({
@@ -64,28 +70,59 @@ export default class Statistics extends Vue {
     return tags.length === 0 ? "无" : tags.join("，");
   }
   get keyValueList() {
+    const intervalMap: { [key: string]: number } = {
+      week: 6,
+      month: 28,
+      year: 11,
+    };
     const today = new Date();
     const array = [];
-    for (let i = 0; i <= 29; i++) {
-      const dateString = day(today).subtract(i, "day").format("YYYY-MM-DD");
-      const found = _.find(this.groupedList, { title: dateString });
-      array.push({
-        key: dateString,
-        value: found ? found.total : 0,
-      });
-    }
-    array.sort((a, b) => {
-      if (a.key > b.key) {
-        return 1;
-      } else if (a.key === b.key) {
-        return 0;
-      } else {
-        return -1;
+    if (this.interval != "year") {
+      for (let i = 0; i <= intervalMap[this.interval]; i++) {
+        const dateString = day(today).subtract(i, "day").format("YYYY-MM-DD");
+        const found = _.find(this.groupedList, { title: dateString });
+
+        array.push({
+          key: dateString,
+          value: found ? found.total : 0,
+        });
       }
-    });
-    return array;
+      array.sort((a, b) => {
+        if (a.key > b.key) {
+          return 1;
+        } else if (a.key === b.key) {
+          return 0;
+        } else {
+          return -1;
+        }
+      });
+      return array;
+    } else {
+      for (let i = 0; i <= intervalMap[this.interval]; i++) {
+        const monthString = day(today)
+          .subtract(i, "month")
+          .format("YYYY-MM-DD");
+        const found = _.find(this.groupedYearList, { title: monthString });
+
+        array.push({
+          key: monthString,
+          value: found ? found.total : 0,
+        });
+      }
+      array.sort((a, b) => {
+        if (a.key > b.key) {
+          return 1;
+        } else if (a.key === b.key) {
+          return 0;
+        } else {
+          return -1;
+        }
+      });
+      return array;
+    }
   }
   get chartOptions() {
+    const interval = this.interval;
     const keys = this.keyValueList.map((item) => item.key);
     const values = this.keyValueList.map((item) => item.value);
     return {
@@ -100,7 +137,15 @@ export default class Statistics extends Vue {
         axisLine: { lineStyle: { color: "#666" } },
         axisLabel: {
           formatter: function (value: string, index: number) {
-            return value.substring(5);
+            const intervalMap: { [key: string]: number[] } = {
+              week: [5, 10],
+              month: [8, 10],
+              year: [5, 7],
+            };
+            return value.substring(
+              intervalMap[interval][0],
+              intervalMap[interval][1]
+            );
           },
         },
       },
@@ -126,6 +171,51 @@ export default class Statistics extends Vue {
   }
   get recordList() {
     return this.$store.state.recordList;
+  }
+
+  get groupedYearList() {
+    const { recordList } = this;
+
+    const newList = clone(recordList)
+      .filter((r: { type: string }) => r.type === this.type)
+      .sort(
+        (
+          a: {
+            createAt: string | number | Date | dayjs.Dayjs | null | undefined;
+          },
+          b: {
+            createAt: string | number | Date | dayjs.Dayjs | null | undefined;
+          }
+        ) => dayjs(b.createAt).valueOf() - dayjs(a.createAt).valueOf()
+      );
+    if (newList.length === 0) {
+      return [];
+    }
+    type Result = { title: string; total?: number; items: RecordItem[] }[];
+
+    const result: Result = [
+      {
+        title: dayjs(newList[0].createAt).format("YYYY-MM-DD"),
+        items: [newList[0]],
+      },
+    ];
+    for (let i = 1; i < newList.length; i++) {
+      const current = newList[i];
+      const last = result[result.length - 1];
+      if (dayjs(last.title).isSame(dayjs(current.createAt), "month")) {
+        last.items.push(current);
+      } else {
+        result.push({
+          title: dayjs(current.createAt).format("YYYY-MM-DD"),
+          items: [current],
+        });
+      }
+    }
+    result.map((group) => {
+      group.total = group.items.reduce((sum, item) => sum + item.amount, 0);
+    });
+
+    return result;
   }
 
   get groupedList() {
@@ -177,6 +267,8 @@ export default class Statistics extends Vue {
   }
   type = "-";
   recordTypeList = recordTypeList;
+  interval = "month";
+  intervalList = intervalList;
 }
 </script>
 <style scoped lang="scss">
@@ -187,6 +279,7 @@ export default class Statistics extends Vue {
 ::v-deep {
   .type-tabs-item {
     background: #f6cbcb;
+
     &.selected {
       background: rgb(252, 249, 249);
       &::after {
@@ -218,7 +311,7 @@ export default class Statistics extends Vue {
   color: #999;
 }
 .chart {
-  width: 430%;
+  max-width: 430%;
   &-wrapper {
     overflow: auto;
     &::-webkit-scrollbar {
