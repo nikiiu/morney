@@ -57,6 +57,9 @@ export default class NumberPad extends Vue {
     this.output = "0";
   }
   ok() {
+    if (this.output === "0") {
+      return window.alert("请输入金额");
+    }
     this.$emit("update:value", parseFloat(this.output));
     this.$emit("submit", parseFloat(this.output));
     this.output = "0";
