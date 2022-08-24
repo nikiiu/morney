@@ -100,13 +100,12 @@ export default class Statistics extends Vue {
       return array;
     } else {
       for (let i = 0; i <= intervalMap[this.interval]; i++) {
-        const monthString = day(today)
-          .subtract(i, "month")
-          .format("YYYY-MM-DD");
+        const monthString = day(today).subtract(i, "month").format("YYYY-MM");
+        console.log(monthString);
         const found = _.find(this.groupedYearList, { title: monthString });
 
         array.push({
-          key: monthString,
+          key: monthString.substring(0, 7),
           value: found ? found.total : 0,
         });
       }
@@ -165,8 +164,7 @@ export default class Statistics extends Vue {
       tooltip: {
         show: true,
         triggerOn: "click",
-        formatter: "{c}",
-        position: "top",
+        formatter: "{b}:{c}",
       },
     };
   }
@@ -196,7 +194,7 @@ export default class Statistics extends Vue {
 
     const result: Result = [
       {
-        title: dayjs(newList[0].createAt).format("YYYY-MM-DD"),
+        title: dayjs(newList[0].createAt).format("YYYY-MM"),
         items: [newList[0]],
       },
     ];
@@ -207,7 +205,7 @@ export default class Statistics extends Vue {
         last.items.push(current);
       } else {
         result.push({
-          title: dayjs(current.createAt).format("YYYY-MM-DD"),
+          title: dayjs(current.createAt).format("YYYY-MM"),
           items: [current],
         });
       }
@@ -217,7 +215,6 @@ export default class Statistics extends Vue {
         .reduce((sum, item) => sum + item.amount, 0)
         .toFixed(2);
     });
-
     return result;
   }
 
@@ -250,7 +247,7 @@ export default class Statistics extends Vue {
     for (let i = 1; i < newList.length; i++) {
       const current = newList[i];
       const last = result[result.length - 1];
-      if (dayjs(last.title).isSame(dayjs(current.createAt), "day")) {
+      if (dayjs(last.title).isSame(dayjs(current.createAt), "month")) {
         last.items.push(current);
       } else {
         result.push({
@@ -316,7 +313,6 @@ export default class Statistics extends Vue {
   color: #999;
 }
 .chart {
-  max-width: 430%;
   &-wrapper {
     overflow: auto;
     &::-webkit-scrollbar {
