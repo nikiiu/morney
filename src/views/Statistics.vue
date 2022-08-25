@@ -105,7 +105,7 @@ export default class Statistics extends Vue {
         const found = _.find(this.groupedYearList, { title: monthString });
 
         array.push({
-          key: monthString.substring(0, 7),
+          key: monthString.substring(0, 7).concat("月"),
           value: found ? found.total : 0,
         });
       }
@@ -133,14 +133,15 @@ export default class Statistics extends Vue {
       xAxis: {
         type: "category",
         data: keys,
-        axisTick: { alignWithLabel: true },
+        axisTick: { show: false, alignWithLabel: true },
         axisLine: { lineStyle: { color: "#666" } },
+        interval: false,
         axisLabel: {
-          formatter: function (value: string, index: number) {
+          formatter: function (value: string) {
             const intervalMap: { [key: string]: number[] } = {
               week: [5, 10],
               month: [8, 10],
-              year: [5, 7],
+              year: [5, 8],
             };
             return value.substring(
               intervalMap[interval][0],
@@ -155,8 +156,8 @@ export default class Statistics extends Vue {
       },
       series: [
         {
-          symbolSize: 10,
-          itemStyle: { borderWidth: 1, color: "#666", borderColor: "#666" },
+          symbolSize: 6,
+          itemStyle: { borderWidth: 0.8, color: "#666", borderColor: "#666" },
           data: values,
           type: "line",
         },
