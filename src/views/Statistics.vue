@@ -11,7 +11,11 @@
       :value.sync="interval"
     />
     <div class="chart-wrapper" ref="chartWrapper">
-      <Chart class="chart" :options="chartOptions" />
+      <Chart
+        class="chart"
+        :options="chartOptions"
+        :class="[my ? 'shortClass' : 'longClass']"
+      />
     </div>
     <ol v-if="groupedList.length > 0">
       <li v-for="(group, index) in groupedList" :key="index">
@@ -34,7 +38,7 @@
 <script lang="ts">
 import recordTypeList from "@/constants/recordTypeList";
 import Vue from "vue";
-import { Component } from "vue-property-decorator";
+import { Component, Watch } from "vue-property-decorator";
 import Tabs from "../components/Tabs.vue";
 import dayjs from "dayjs";
 import clone from "@/lib/clone";
@@ -48,8 +52,20 @@ const oneDay = 86400 * 1000;
   components: { Tabs, Chart },
 })
 export default class Statistics extends Vue {
+  my = false;
+  @Watch("interval", { immediate: true, deep: true })
+  onWidthChanged(val: string, oldVal: string) {
+    const widthMap: { [key: string]: boolean } = {
+      week: true,
+      month: false,
+      year: true,
+    };
+    this.my = widthMap[this.interval];
+  }
+
   mounted() {
     const div = this.$refs.chartWrapper as HTMLDivElement;
+
     div.scrollLeft = div.scrollWidth;
   }
   beautify(string: string) {
@@ -101,7 +117,6 @@ export default class Statistics extends Vue {
     } else {
       for (let i = 0; i <= intervalMap[this.interval]; i++) {
         const monthString = day(today).subtract(i, "month").format("YYYY-MM");
-        console.log(monthString);
         const found = _.find(this.groupedYearList, { title: monthString });
 
         array.push({
@@ -135,7 +150,7 @@ export default class Statistics extends Vue {
         data: keys,
         axisTick: { show: false, alignWithLabel: true },
         axisLine: { lineStyle: { color: "#666" } },
-        interval: false,
+        interval: 0,
         axisLabel: {
           formatter: function (value: string) {
             const intervalMap: { [key: string]: number[] } = {
@@ -156,7 +171,7 @@ export default class Statistics extends Vue {
       },
       series: [
         {
-          symbolSize: 6,
+          symbolSize: 10,
           itemStyle: { borderWidth: 0.8, color: "#666", borderColor: "#666" },
           data: values,
           type: "line",
@@ -164,6 +179,8 @@ export default class Statistics extends Vue {
       ],
       tooltip: {
         show: true,
+        confine: true,
+        position: "top",
         triggerOn: "click",
         formatter: "{b}:{c}",
       },
@@ -320,5 +337,11 @@ export default class Statistics extends Vue {
       display: none;
     }
   }
+}
+.shortClass {
+  width: 100%;
+}
+.longClass {
+  width: 430%;
 }
 </style>

@@ -21,6 +21,7 @@ export default class Chart extends Vue {
 
   @Watch("options")
   omOptionsChange(newValue: EChartsOption) {
+    this.chart!.resize();
     this.chart!.setOption(newValue);
   }
 }
