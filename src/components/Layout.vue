@@ -21,7 +21,7 @@ export default {
   height: 100vh;
 }
 .content {
-  overflow: auto;
+  overflow: hidden;
   flex-grow: 1;
 }
 </style>
