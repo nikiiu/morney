@@ -285,7 +285,7 @@ export default class Statistics extends Vue {
   beforeCreate() {
     this.$store.commit("fetchRecords");
   }
-  type = "-";
+  type = "+";
   recordTypeList = recordTypeList;
   interval = "month";
   intervalList = intervalList;

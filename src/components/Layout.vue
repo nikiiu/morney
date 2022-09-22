@@ -21,7 +21,10 @@ export default {
   height: 100vh;
 }
 .content {
-  overflow: hidden;
+  overflow: auto;
+    &::-webkit-scrollbar {
+      display: none;
+    }
   flex-grow: 1;
 }
 </style>
